@@ -56,7 +56,8 @@ export default function Login() {
         localStorage.setItem("token", result.data.token);
         localStorage.setItem("id", result.data.userData.value.id);
         localStorage.setItem("roleId", result.data.userData.value.roleId);
-   
+        localStorage.setItem("Email", result.data.userData.value.email);
+        localStorage.setItem("Name", result.data.userData.value.name);
 
         navigate("/ToDo");
       })
@@ -100,6 +101,9 @@ export default function Login() {
         localStorage.setItem("token", result.data.token);
         localStorage.setItem("id", result.data.userFromDb.value.id);
         localStorage.setItem("roleId", result.data.userFromDb.value.roleId);
+        localStorage.setItem("Email", result.data.userFromDb.value.email);
+        localStorage.setItem("Name", result.data.userFromDb.value.name);
+
         navigate("/ToDo");
       })
       .catch((error) => {

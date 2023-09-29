@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import Sidebar from "./Components/Sidebar";
 import Navbar from "./Components/Navbar";
 import { MdAddTask, MdWidthFull } from "react-icons/md";
@@ -18,13 +18,15 @@ import {
   CModalBody,
   CFormTextarea,
 } from "@coreui/react";
+import { IoIosArrowBack } from "react-icons/io";
+import { HiOutlineUsers } from "react-icons/hi";
 
 export default function TaskCategory(props: any) {
   const id = localStorage.getItem("id");
   const location = useLocation();
   const { state } = location;
   const projname = state ? state.name : "";
-  const projectId=state? state.id:"";
+  const projectId = state ? state.id : "";
   const [task, setTask] = useState({
     id: 0,
     assignedBy: id,
@@ -73,7 +75,7 @@ export default function TaskCategory(props: any) {
           .get(`https://localhost:7282/api/TaskType/${projId}`)
           .then((result) => {
             settc(result.data);
-             setprojId(projId)
+            setprojId(projId);
             // Use taskData as needed
           })
           .catch((error) => {
@@ -95,38 +97,37 @@ export default function TaskCategory(props: any) {
       });
   };
 
-  const getdata=()=>{
+  const getdata = () => {
     axios
-    .get("https://localhost:7282/api/User/ListofUser")
-    .then((result: any) => {
-      setd(result.data);
-      //console.log(result.data);
-    })
-    .catch((error: any) => {
-      //console.log(error);
-    });
+      .get("https://localhost:7282/api/User/ListofUser")
+      .then((result: any) => {
+        setd(result.data);
+        //console.log(result.data);
+      })
+      .catch((error: any) => {
+        //console.log(error);
+      });
     axios
-    .get(`https://localhost:7282/api/TaskType/${projectId}`)
-    .then((result) => {
-      settc(result.data);
-      // setprojId(projId)
-      // Use taskData as needed
-    })
-    .catch((error) => {
-      console.log("Error occurred while fetching project tasks:", error);
-    });
+      .get(`https://localhost:7282/api/TaskType/${projectId}`)
+      .then((result) => {
+        settc(result.data);
+        // setprojId(projId)
+        // Use taskData as needed
+      })
+      .catch((error) => {
+        console.log("Error occurred while fetching project tasks:", error);
+      });
 
-  axios
-    .get(`https://localhost:7282/api/Task/MyProjectTask/${projectId}`)
-    .then((result) => {
-      settskL(result.data);
-      console.log(result.data);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-
-  }
+    axios
+      .get(`https://localhost:7282/api/Task/MyProjectTask/${projectId}`)
+      .then((result) => {
+        settskL(result.data);
+        console.log(result.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   const getTaskC = () => {
     axios
       .get(`https://localhost:7282/api/TaskType/${projId}`)
@@ -200,7 +201,6 @@ export default function TaskCategory(props: any) {
       projectId: projId,
     };
 
-
     axios
       .post("https://localhost:7282/api/TaskType", t)
       .then((result) => {
@@ -262,16 +262,16 @@ export default function TaskCategory(props: any) {
     const newShowAddCard = [...showAddCard];
     newShowAddCard[index] = false;
     setShowAddCard(newShowAddCard);
- setTask({
-    id: 0,
-    assignedBy: id,
-    assignedTo: 1,
-    task: "",
-    dateTime: new Date(),
-    status: "Todo",
-    taskL: 0,
-    projectId: 0,
-  });
+    setTask({
+      id: 0,
+      assignedBy: id,
+      assignedTo: 1,
+      task: "",
+      dateTime: new Date(),
+      status: "Todo",
+      taskL: 0,
+      projectId: 0,
+    });
   };
 
   const handlestatus = (id: any) => {
@@ -311,7 +311,18 @@ export default function TaskCategory(props: any) {
         <Navbar />
         <Sidebar />
         <div className="tasklistcontent mainpage">
-          <h1 style={{ marginLeft: "15px" }}>{projname}</h1>
+          <div style={{ display: "flex" }}>
+            <Link to="/Project">
+              {" "}
+              <IoIosArrowBack
+                size={32}
+                style={{ marginTop: "14px" }}
+                color="022b3a"
+                className="taskpageIcons"
+              />
+            </Link>
+            <h1 style={{ marginLeft: "15px" }}>{projname}</h1>
+          </div>
           {/*<h1 style={{marginLeft:"300px"}}>{projId}</h1>*/}
           {/*  <input type="text" name="taskL" onChange={handleChange} value={task.taskL}/>
    <button onClick={()=>setv(!v)}>Add taskCategory</button>
@@ -473,16 +484,28 @@ export default function TaskCategory(props: any) {
                                           justifyContent: "space-between",
                                         }}
                                       >
-                                        <span>
+                                        {/* <span>
+                                        <input
+                                          type="checkbox"
+                                          checked={task.status == "Done"}
+                                          name="status"
+                                          onChange={() =>
+                                            handlestatus(task.id)
+                                          }
+                                        />
+                                      </span> */}
+                                        <label className="checkbox">
                                           <input
                                             type="checkbox"
+                                            className="checkbox__input"
                                             checked={task.status == "Done"}
                                             name="status"
                                             onChange={() =>
                                               handlestatus(task.id)
                                             }
                                           />
-                                        </span>
+                                          <span className="checkbox__inner"></span>
+                                        </label>
                                         <span>
                                           {getUsernameById(task.assignedTo)}
                                         </span>
@@ -503,14 +526,14 @@ export default function TaskCategory(props: any) {
             {isButtonVisible ? (
               <div>
                 <button className="addtasklistbutton" onClick={toggleButton}>
-                  <GrAdd />
+                  <GrAdd className="addicon" />
                   Create a new tasklist
                 </button>
               </div>
             ) : (
               <div
                 className="addtasklistbutton"
-                style={{ backgroundColor: "violet" }}
+                style={{ backgroundColor: "#1f5c87" }}
               >
                 <input
                   style={{

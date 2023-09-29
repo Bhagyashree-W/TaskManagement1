@@ -222,7 +222,7 @@ export default function ToDo() {
                           >
                             <CCardBody className="cardtodo">
                               <div>
-                              <CCardText className="taskname">
+                                <CCardText className="taskname">
                                   <label className="checkbox">
                                     <input
                                       type="checkbox"
@@ -260,10 +260,7 @@ export default function ToDo() {
                       );
                       return (
                         <div key={index}>
-                          <CCard
-                            className="taskCard"
-                           
-                          >
+                          <CCard className="taskCard">
                             <CCardBody
                               style={{
                                 display: "flex",
@@ -271,9 +268,7 @@ export default function ToDo() {
                               }}
                             >
                               <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  
-                                </CCardSubtitle>
+                                <CCardSubtitle className="mb-2 text-medium-emphasis"></CCardSubtitle>
                                 <CCardText className="taskname">
                                   <label className="checkbox">
                                     <input
@@ -290,22 +285,25 @@ export default function ToDo() {
                               </div>
                               <div>
                                 <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                <button
-                                  onClick={(e: any) => {
-                                    editTask(item.id);
-                                    seteditid(item.id);
-                                  }}
-                                >
-                                  <BiEditAlt size={20} color="233d4d" />
-                                </button>
-                                <button
-                                  onClick={(e: any) => {
-                                    dsetVisible(!dvisible);
-                                    setdelid(item.id);
-                                  }}
-                                >
-                                  <RiDeleteBin5Line size={20} color="233d4d" />
-                                </button>
+                                  <button
+                                    onClick={(e: any) => {
+                                      editTask(item.id);
+                                      seteditid(item.id);
+                                    }}
+                                  >
+                                    <BiEditAlt size={20} color="233d4d" />
+                                  </button>
+                                  <button
+                                    onClick={(e: any) => {
+                                      dsetVisible(!dvisible);
+                                      setdelid(item.id);
+                                    }}
+                                  >
+                                    <RiDeleteBin5Line
+                                      size={20}
+                                      color="233d4d"
+                                    />
+                                  </button>
                                 </CCardSubtitle>
                                 <CCardText>
                                   <span>{item.assignTo}</span>

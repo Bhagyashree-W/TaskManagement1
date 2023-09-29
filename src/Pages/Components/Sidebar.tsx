@@ -123,32 +123,44 @@ export default function Sidebar() {
                 setvm(!vm);
               }}
             >
-              <GrAddCircle size={32} color="022b3a" />
+              <GrAddCircle size={32} color="022b3a" className="taskpageIcons" />
             </a>
             <Link to="/Project">
-              <AiOutlineFolderAdd size={32} color="233d4d" />
+              <AiOutlineFolderAdd
+                size={32}
+                color="233d4d"
+                className="taskpageIcons"
+              />
             </Link>
             <Link to="/Task">
-              <BiTask size={32} color="022b3a" />
+              <BiTask size={32} color="022b3a" className="taskpageIcons" />
             </Link>
           </>
         )}
         <Link to="/ToDo">
-          <GoTasklist size={32} color="022b3a" />
+          <GoTasklist size={32} color="022b3a" className="taskpageIcons" />
         </Link>
         <Link to="/MyTask">
-          <RiTaskLine size={32} color="022b3a" />
+          <RiTaskLine size={32} color="022b3a" className="taskpageIcons" />
         </Link>
         {roleId === "1" && (
           <Link to="/CrudUsers">
             {" "}
-            <HiOutlineUsers size={32} color="022b3a" />
+            <HiOutlineUsers
+              size={32}
+              color="022b3a"
+              className="taskpageIcons"
+            />
           </Link>
         )}
         {roleId === "2" && (
           <Link to="/Users">
             {" "}
-            <HiOutlineUsers size={32} color="022b3a" />
+            <HiOutlineUsers
+              size={32}
+              color="022b3a"
+              className="taskpageIcons"
+            />
           </Link>
         )}
       </div>
@@ -167,7 +179,7 @@ export default function Sidebar() {
             onChange={handleChange}
             value={u.task}
           />
-          <div style={{ paddingLeft: "50px", paddingRight: "50px" }}>
+          <div style={{ paddingLeft: "5px", paddingRight: "5px" }}>
             <div
               style={{
                 display: "flex",
@@ -175,26 +187,29 @@ export default function Sidebar() {
                 justifyContent: "space-between",
               }}
             >
-              <div>
+              <div className="input-wrapper">
                 <BiCategory
                   for="taskL"
                   size={25}
-                  style={{ marginRight: "10px" }}
                   color="grey"
+                  className="search-icon"
                 />
                 <select
                   name="taskL"
                   onChange={handleChange}
-                  style={{ marginRight: "25px" }}
+                  style={{ width: "12rem", height: "2rem" }}
                   value={u.taskL}
+                  className="search-input"
                 >
                   {taskl.map((item: any, index: any) => {
                     return <option value={item.id}>{item.taskType}</option>;
                   })}
                 </select>
               </div>
-              <div>
+
+              <div className="input-wrapper">
                 <BsFolderPlus
+                  className="search-icon"
                   size={25}
                   style={{ marginRight: "10px" }}
                   color="grey"
@@ -202,7 +217,8 @@ export default function Sidebar() {
                 <select
                   name="projectId"
                   onChange={handleChange}
-                  style={{ marginRight: "25px" }}
+                  className="search-input"
+                  style={{ width: "12rem", height: "2rem" }}
                 >
                   {proj.map((item: any, index: any) => {
                     return <option value={item.id}>{item.projectName}</option>;
@@ -217,9 +233,10 @@ export default function Sidebar() {
                 justifyContent: "space-between",
               }}
             >
-              <div>
+              <div className="input-wrapper">
                 <BsPersonFillAdd
                   for="assignedTo"
+                  className="search-icon"
                   size={25}
                   style={{ marginRight: "10px" }}
                   color="grey"
@@ -227,16 +244,18 @@ export default function Sidebar() {
                 <select
                   name="assignedTo"
                   onChange={handleChange}
-                  style={{ marginRight: "25px" }}
                   value={u.assignedTo}
+                  className="search-input"
+                  style={{ width: "12rem", height: "2rem" }}
                 >
                   {d.map((item: any, index: any) => {
                     return <option value={item.id}>{item.name}</option>;
                   })}
                 </select>
               </div>
-              <div>
+              <div className="input-wrapper">
                 <BsCalendarDateFill
+                  className="search-icon"
                   size={25}
                   style={{ marginRight: "10px" }}
                   color="grey"
@@ -246,6 +265,8 @@ export default function Sidebar() {
                   name="dateTime"
                   value={u.dateTime}
                   onChange={handleChange}
+                  className="search-input"
+                  style={{ width: "12rem", height: "2rem" }}
                 />
               </div>
             </div>

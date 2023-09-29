@@ -51,3 +51,7 @@
     background-color: #1f7a8c;
     transform: translateY(3px);
   }
+  
+.taskpageIcons::after{
+  border: 2px solid black;
+}

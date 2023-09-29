@@ -21,6 +21,7 @@ import "../css/Task.css";
 import { Button, Offcanvas } from "react-bootstrap";
 import { BsCalendarDateFill, BsPersonFillAdd } from "react-icons/bs";
 import { renderToStaticMarkup } from "react-dom/server";
+import { BiSearchAlt2 } from "react-icons/bi";
 
 export default function Mytask() {
   const id = localStorage.getItem("id");
@@ -36,7 +37,9 @@ export default function Mytask() {
   const [taskl, settaskl] = useState([]);
   const [filterDate, setfilterDate] = useState("");
   const [vm, setvm] = useState(false);
-  const [filterproj,setfilterproj]=useState("");
+  const [filterproj, setfilterproj] = useState("");
+  const [search, setsearch] = useState("");
+  const [sort, setsort] = useState(false);
 
   const [editt, seteditt] = useState({
     id: 0,
@@ -126,13 +129,12 @@ export default function Mytask() {
     seteditt({
       id: item.id,
       assignedBy: item.manager,
-      assignedTo:  item.assignTo,
+      assignedTo: item.assignTo,
       task: item.task,
       dateTime: item.dateTime,
       status: item.status,
-      taskL:  item.taskLName,
-      projectId:  item.projectName
-     
+      taskL: item.taskLName,
+      projectId: item.projectName,
     });
   };
 
@@ -302,32 +304,58 @@ export default function Mytask() {
                   </div>
                 </div>
               </div>
-              
-              
+
               <div>
-                <h6>Date</h6>
-                <input
-                  type="date"
-                  onChange={(e: any) => setfilterDate(e.target.value)}
-                  value={filterDate}
-                />
+                <h6>Created by </h6>
+                <div className="input-addon" style={{ width: "70%" }}>
+                  <select
+                    className="form-element input-field "
+                    name="manager"
+                    onChange={(e: any) => {
+                      setmanager(e.target.value);
+                    }}
+                  >
+                    <option value="">--select--</option>
+                    {d.map((item: any, index: any) => {
+                      return (
+                        <option value={item.username}>{item.username}</option>
+                      );
+                    })}
+                  </select>
+                </div>
               </div>
               <div>
+                <h6>Date</h6>
+                <div className="input-addon" style={{ width: "70%" }}>
+                  <input
+                    className="form-element input-field "
+                    type="date"
+                    onChange={(e: any) => setfilterDate(e.target.value)}
+                    value={filterDate}
+                  />
+                </div>
+              </div>
+
+              <div>
                 <h6>Project</h6>
-                <select
-                  name="filterproj"
-                  onChange={(e: any) => {
-                    setfilterproj(e.target.value);
-                  }}
-                  style={{ marginRight: "25px" }}
-                >
-                  <option value="">--select--</option>
-                  {proj.map((item: any, index: any) => {
-                    return (
-                      <option value={item.projectName}>{item.projectName}</option>
-                    );
-                  })}
-                </select>
+                <div className="input-addon" style={{ width: "70%" }}>
+                  <select
+                    className="form-element input-field "
+                    name="filterproj"
+                    onChange={(e: any) => {
+                      setfilterproj(e.target.value);
+                    }}
+                  >
+                    <option value="">--select--</option>
+                    {proj.map((item: any, index: any) => {
+                      return (
+                        <option value={item.projectName}>
+                          {item.projectName}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
               </div>
             </div>
             {/* <div className="taskCard">
@@ -354,11 +382,51 @@ export default function Mytask() {
 
               
             </div> */}
-
             <div className="taskGrpCard">
-              
+              <div className="addbtn">
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    name="search"
+                    value={search}
+                    onChange={(e) => setsearch(e.target.value)}
+                    placeholder="Search task"
+                    className="search-input"
+                  />
+                  <div className="search-icon">
+                    <BiSearchAlt2 />
+                  </div>
+                </div>
+                <div className=" input-wrapper sort">
+                  <select
+                    className="search-input"
+                    style={{ height: "1.5rem" }}
+                    name="filterproj"
+                    onChange={(e: any) => {
+                      const selectedOption = e.target.value;
+                      if (selectedOption === "sort") {
+                        setsort(true);
+                      } else {
+                        setsort(false);
+                      }
+                    }}
+                  >
+                    <option value="create">By Creation</option>
+                    <option value="sort">By Date</option>
+                  </select>
+                </div>
+              </div>
               {status == "active" && t.length > 0
-                ? t
+                ? (sort
+                    ? t.slice().sort((a: any, b: any) => {
+                        const dateA = new Date(a.dateTime);
+                        const dateB = new Date(b.dateTime);
+                        if (dateA < dateB) return -1;
+                        if (dateA > dateB) return 1;
+                        return 0;
+                      })
+                    : t
+                  )
                     .filter((item: any) => {
                       return (
                         item.status != "Done" &&
@@ -366,10 +434,13 @@ export default function Mytask() {
                         (manager === "" || manager === item.manager) &&
                         (filterDate === "" ||
                           new Date(filterDate).toDateString() ===
-                            new Date(item.dateTime).toDateString())&&
-                            (filterproj===""||filterproj===item.projectName)
+                            new Date(item.dateTime).toDateString()) &&
+                        (filterproj === "" ||
+                          filterproj === item.projectName) &&
+                        (search === "" || search === item.task)
                       );
                     })
+
                     .map((item: any, index: any) => {
                       return (
                         <div key={index}>
@@ -432,7 +503,16 @@ export default function Mytask() {
                     })
                 : null}
               {status == "complete" && t.length > 0
-                ? t
+                ? (sort
+                    ? t.slice().sort((a: any, b: any) => {
+                        const dateA = new Date(a.dateTime);
+                        const dateB = new Date(b.dateTime);
+                        if (dateA < dateB) return -1;
+                        if (dateA > dateB) return 1;
+                        return 0;
+                      })
+                    : t
+                  )
                     .filter((item: any) => {
                       return (
                         item.status == "Done" &&
@@ -441,9 +521,12 @@ export default function Mytask() {
                         (filterDate === "" ||
                           new Date(filterDate).toDateString() ===
                             new Date(item.dateTime).toDateString()) &&
-                            (filterproj===""||filterproj===item.projectName)
+                        (filterproj === "" ||
+                          filterproj === item.projectName) &&
+                        (search === "" || search === item.task)
                       );
                     })
+
                     .map((item: any, index: any) => {
                       return (
                         <div key={index}>
@@ -460,7 +543,7 @@ export default function Mytask() {
                               <div>
                                 <CCardSubtitle className="mb-2 text-medium-emphasis">
                                   <span>
-                                  {item.projectName} &gt; {item.taskLName}
+                                    {item.projectName} &gt; {item.taskLName}
                                   </span>
                                 </CCardSubtitle>
                                 <CCardText className="taskname">
@@ -506,15 +589,26 @@ export default function Mytask() {
                     })
                 : null}
               {status == "all" && t.length > 0
-                ? t
+                ? (sort
+                    ? t.slice().sort((a: any, b: any) => {
+                        const dateA = new Date(a.dateTime);
+                        const dateB = new Date(b.dateTime);
+                        if (dateA < dateB) return -1;
+                        if (dateA > dateB) return 1;
+                        return 0;
+                      })
+                    : t
+                  )
                     .filter((item: any) => {
                       return (
                         (assignto === "" || assignto === item.assignTo) &&
                         (manager === "" || manager === item.manager) &&
                         (filterDate === "" ||
                           new Date(filterDate).toDateString() ===
-                            new Date(item.dateTime).toDateString())&&
-                            (filterproj===""||filterproj===item.projectName)
+                            new Date(item.dateTime).toDateString()) &&
+                        (filterproj === "" ||
+                          filterproj === item.projectName) &&
+                        (search === "" || search === item.task)
                       );
                     })
                     .map((item: any, index: any) => {
@@ -578,559 +672,6 @@ export default function Mytask() {
                       );
                     })
                 : null}
-
-              {/* {status == "active" && t.length > 0
-                ? t
-                    .filter((item: any) => {
-                      return (
-                        item.status != "Done" &&
-                        assignto == item.assignTo &&
-                        manager == ""
-                      );
-                    })
-                    .map((item: any, index: any) => {
-                      return (
-                        <div key={index}>
-                          <CCard
-                            className="taskCard"
-                            onDoubleClick={() => handleShow(item)}
-                          >
-                            <CCardBody
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    {item.projectName} &gt; {item.taskLName}
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText className="taskname">
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox__input"
-                                      checked={item.status == "Done"}
-                                      name="status"
-                                      onChange={() => handlestatus(item.id)}
-                                    />
-                                    <span className="checkbox__inner"></span>
-                                  </label>
-                                  <span>{item.task}</span>
-                                </CCardText>
-                              </div>
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    <BsCalendarDateFill
-                                      size={15}
-                                      style={{ marginRight: "10px" }}
-                                      color="grey"
-                                    />
-                                    Due on{" "}
-                                    <b
-                                      style={{
-                                        color: "rgb(106, 206, 206)",
-                                      }}
-                                    >
-                                      {formatDate(item.dateTime)}
-                                    </b>
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <span>{item.assignTo}</span>
-                                </CCardText>
-                              </div>
-                            </CCardBody>
-                          </CCard>
-                        </div>
-                      );
-                    })
-                : null}
-              {status == "complete" && t.length > 0
-                ? t
-                    .filter((item: any) => {
-                      return (
-                        item.status == "Done" &&
-                        assignto == item.assignTo &&
-                        manager == ""
-                      );
-                    })
-                    .map((item: any, index: any) => {
-                      return (
-                        <div key={index}>
-                          <CCard
-                            className="taskCard"
-                            onDoubleClick={() => handleShow(item)}
-                          >
-                            <CCardBody
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    {item.projectName} &gt; {item.taskLName}
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText className="taskname">
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox__input"
-                                      checked={item.status == "Done"}
-                                      name="status"
-                                      onChange={() => handlestatus(item.id)}
-                                    />
-                                    <span className="checkbox__inner"></span>
-                                  </label>
-                                  <span>{item.task}</span>
-                                </CCardText>
-                              </div>
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    <BsCalendarDateFill
-                                      size={15}
-                                      style={{ marginRight: "10px" }}
-                                      color="grey"
-                                    />
-                                    Due on{" "}
-                                    <b
-                                      style={{
-                                        color: "rgb(106, 206, 206)",
-                                      }}
-                                    >
-                                      {formatDate(item.dateTime)}
-                                    </b>
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <span>{item.assignTo}</span>
-                                </CCardText>
-                              </div>
-                            </CCardBody>
-                          </CCard>
-                        </div>
-                      );
-                    })
-                : null}
-              {status == "all" && t.length > 0
-                ? t
-                    .filter((item: any) => {
-                      return assignto == item.assignTo && manager == "";
-                    })
-                    .map((item: any, index: any) => {
-                      return (
-                        <div key={index}>
-                          <CCard
-                            className="taskCard"
-                            onDoubleClick={() => handleShow(item)}
-                          >
-                            <CCardBody
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    {item.projectName} &gt; {item.taskLName}
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText className="taskname">
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox__input"
-                                      checked={item.status == "Done"}
-                                      name="status"
-                                      onChange={() => handlestatus(item.id)}
-                                    />
-                                    <span className="checkbox__inner"></span>
-                                  </label>
-                                  <span>{item.task}</span>
-                                </CCardText>
-                              </div>
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    <BsCalendarDateFill
-                                      size={15}
-                                      style={{ marginRight: "10px" }}
-                                      color="grey"
-                                    />
-                                    Due on{" "}
-                                    <b
-                                      style={{
-                                        color: "rgb(106, 206, 206)",
-                                      }}
-                                    >
-                                      {formatDate(item.dateTime)}
-                                    </b>
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <span>{item.assignTo}</span>
-                                </CCardText>
-                              </div>
-                            </CCardBody>
-                          </CCard>
-                        </div>
-                      );
-                    })
-                : null}
-
-              {status == "active" && t.length > 0
-                ? t
-                    .filter((item: any) => {
-                      return (
-                        item.status != "Done" &&
-                        assignto == item.assignTo &&
-                        manager == item.manager
-                      );
-                    })
-                    .map((item: any, index: any) => {
-                      return (
-                        <div key={index}>
-                          <CCard
-                            className="taskCard"
-                            onDoubleClick={() => handleShow(item)}
-                          >
-                            <CCardBody
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    {item.projectName} &gt; {item.taskLName}
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText className="taskname">
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox__input"
-                                      checked={item.status == "Done"}
-                                      name="status"
-                                      onChange={() => handlestatus(item.id)}
-                                    />
-                                    <span className="checkbox__inner"></span>
-                                  </label>
-                                  <span>{item.task}</span>
-                                </CCardText>
-                              </div>
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    <BsCalendarDateFill
-                                      size={15}
-                                      style={{ marginRight: "10px" }}
-                                      color="grey"
-                                    />
-                                    Due on{" "}
-                                    <b
-                                      style={{
-                                        color: "rgb(106, 206, 206)",
-                                      }}
-                                    >
-                                      {formatDate(item.dateTime)}
-                                    </b>
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <span>{item.assignTo}</span>
-                                </CCardText>
-                              </div>
-                            </CCardBody>
-                          </CCard>
-                        </div>
-                      );
-                    })
-                : null}
-              {status == "complete" && t.length > 0
-                ? t
-                    .filter((item: any) => {
-                      return (
-                        item.status == "Done" &&
-                        assignto == item.assignTo &&
-                        manager == item.manager
-                      );
-                    })
-                    .map((item: any, index: any) => {
-                      return (
-                        <div key={index}>
-                          <CCard
-                            className="taskCard"
-                            onDoubleClick={() => handleShow(item)}
-                          >
-                            <CCardBody
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    {item.projectName} &gt; {item.taskLName}
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText className="taskname">
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox__input"
-                                      checked={item.status == "Done"}
-                                      name="status"
-                                      onChange={() => handlestatus(item.id)}
-                                    />
-                                    <span className="checkbox__inner"></span>
-                                  </label>
-                                  <span>{item.task}</span>
-                                </CCardText>
-                              </div>
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    <BsCalendarDateFill
-                                      size={15}
-                                      style={{ marginRight: "10px" }}
-                                      color="grey"
-                                    />
-                                    Due on{" "}
-                                    <b
-                                      style={{
-                                        color: "rgb(106, 206, 206)",
-                                      }}
-                                    >
-                                      {formatDate(item.dateTime)}
-                                    </b>
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <span>{item.assignTo}</span>
-                                </CCardText>
-                              </div>
-                            </CCardBody>
-                          </CCard>
-                        </div>
-                      );
-                    })
-                : null}
-              {status == "all" && t.length > 0
-                ? t
-                    .filter((item: any) => {
-                      return (
-                        assignto == item.assignTo && manager == item.manager
-                      );
-                    })
-                    .map((item: any, index: any) => {
-                      return (
-                        <div key={index}>
-                          <CCard
-                            className="taskCard"
-                            onDoubleClick={() => handleShow(item)}
-                          >
-                            <CCardBody
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    {item.projectName} &gt; {item.taskLName}
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText className="taskname">
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox__input"
-                                      checked={item.status == "Done"}
-                                      name="status"
-                                      onChange={() => handlestatus(item.id)}
-                                    />
-                                    <span className="checkbox__inner"></span>
-                                  </label>
-                                  <span>{item.task}</span>
-                                </CCardText>
-                              </div>
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    <BsCalendarDateFill
-                                      size={15}
-                                      style={{ marginRight: "10px" }}
-                                      color="grey"
-                                    />
-                                    Due on{" "}
-                                    <b
-                                      style={{
-                                        color: "rgb(106, 206, 206)",
-                                      }}
-                                    >
-                                      {formatDate(item.dateTime)}
-                                    </b>
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <span>{item.assignTo}</span>
-                                </CCardText>
-                              </div>
-                            </CCardBody>
-                          </CCard>
-                        </div>
-                      );
-                    })
-                : null}
-
-              {status == "active" && t.length > 0
-                ? t
-                    .filter((item: any) => {
-                      return (
-                        item.status != "Done" &&
-                        assignto == "" &&
-                        manager == item.manager
-                      );
-                    })
-                    .map((item: any, index: any) => {
-                      return (
-                        <div key={index}>
-                          <CCard
-                            className="taskCard"
-                            onDoubleClick={() => handleShow(item)}
-                          >
-                            <CCardBody
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    {item.projectName} &gt; {item.taskLName}
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox__input"
-                                      checked={item.status == "Done"}
-                                      name="status"
-                                      onChange={() => handlestatus(item.id)}
-                                    />
-                                    <span className="checkbox__inner"></span>
-                                  </label>
-                                  <span>{item.task}</span>
-                                </CCardText>
-                              </div>
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    <BsCalendarDateFill
-                                      size={15}
-                                      style={{ marginRight: "10px" }}
-                                      color="grey"
-                                    />
-                                    Due on{" "}
-                                    <b
-                                      style={{
-                                        color: "rgb(106, 206, 206)",
-                                      }}
-                                    >
-                                      {formatDate(item.dateTime)}
-                                    </b>
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <span>{item.assignTo}</span>
-                                </CCardText>
-                              </div>
-                            </CCardBody>
-                          </CCard>
-                        </div>
-                      );
-                    })
-                : null}
-              {status == "all" && t.length > 0
-                ? t
-                    .filter((item: any) => {
-                      return assignto == "" && manager == item.manager;
-                    })
-                    .map((item: any, index: any) => {
-                      return (
-                        <div key={index}>
-                          <CCard
-                            className="taskCard"
-                            onDoubleClick={() => handleShow(item)}
-                          >
-                            <CCardBody
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                              }}
-                            >
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    {item.projectName} &gt; {item.taskLName}
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText className="taskname">
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
-                                      className="checkbox__input"
-                                      checked={item.status == "Done"}
-                                      name="status"
-                                      onChange={() => handlestatus(item.id)}
-                                    />
-                                    <span className="checkbox__inner"></span>
-                                  </label>
-                                  <span>{item.task}</span>
-                                </CCardText>
-                              </div>
-                              <div>
-                                <CCardSubtitle className="mb-2 text-medium-emphasis">
-                                  <span>
-                                    <BsCalendarDateFill
-                                      size={15}
-                                      style={{ marginRight: "10px" }}
-                                      color="grey"
-                                    />
-                                    Due on{" "}
-                                    <b
-                                      style={{
-                                        color: "rgb(106, 206, 206)",
-                                      }}
-                                    >
-                                      {formatDate(item.dateTime)}
-                                    </b>
-                                  </span>
-                                </CCardSubtitle>
-                                <CCardText>
-                                  <span>{item.assignTo}</span>
-                                </CCardText>
-                              </div>
-                            </CCardBody>
-                          </CCard>
-                        </div>
-                      );
-                    })
-                : null} */}
             </div>
           </div>
 
@@ -1143,39 +684,42 @@ export default function Mytask() {
                 <div
                   style={{ display: "flex", flexDirection: "row", gap: "15px" }}
                 >
-                  <h6>Manager:</h6>{editt.assignedBy}
-                  
+                  <h6>Manager:</h6>
+                  {editt.assignedBy}
                 </div>
                 <div
                   style={{ display: "flex", flexDirection: "row", gap: "15px" }}
                 >
-                 <h6> Assigned to:</h6>{editt.assignedTo}
-                  
+                  <h6> Assigned to:</h6>
+                  {editt.assignedTo}
                 </div>
                 <div
                   style={{ display: "flex", flexDirection: "row", gap: "15px" }}
                 >
-                 <h6> Project:</h6>{editt.projectId}
-                  
+                  <h6> Project:</h6>
+                  {editt.projectId}
                 </div>
                 <div
                   style={{ display: "flex", flexDirection: "row", gap: "15px" }}
                 >
-                  <h6>TaskCategory:</h6>{editt.taskL}
-                  
+                  <h6>TaskCategory:</h6>
+                  {editt.taskL}
                 </div>
-                <div style={{ display: "flex", flexDirection: "row", gap: "15px" }}>
-                 <h6> Task:</h6>{editt.task}
-                  
+                <div
+                  style={{ display: "flex", flexDirection: "row", gap: "15px" }}
+                >
+                  <h6> Task:</h6>
+                  {editt.task}
                 </div>
-                
-                <div style={{ display: "flex", flexDirection: "row", gap: "15px" }}>
-                 <h6> Status:</h6>{editt.status}
-                  
+
+                <div
+                  style={{ display: "flex", flexDirection: "row", gap: "15px" }}
+                >
+                  <h6> Status:</h6>
+                  {editt.status}
                 </div>
               </div>
             </Offcanvas.Body>
-            
           </Offcanvas>
         </div>
       </div>

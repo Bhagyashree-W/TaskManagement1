@@ -69,12 +69,10 @@ export default function Project() {
   };
 
   const getProject = () => {
-    
     axios
       .get("https://localhost:7282/api/Project")
       .then((result: any) => {
         setprojN(result.data);
-        
       })
       .catch((error) => {
         alert("cannot load projectName");
@@ -134,7 +132,7 @@ export default function Project() {
   };
 
   const addproject = () => {
-    const projname=projectName
+    const projname = projectName;
     axios
       .post("https://localhost:7282/api/Project", {
         projectName: projectName,
@@ -142,13 +140,13 @@ export default function Project() {
       .then((result) => {
         //alert("successfully added project");
         axios
-      .get(`https://localhost:7282/api/Project/GetProjectId/${projname}`)
-      .then((result)=>{
-        setprojId(result.data)
-      }).catch((error)=>{
-        console.log(error)
-      })
-
+          .get(`https://localhost:7282/api/Project/GetProjectId/${projname}`)
+          .then((result) => {
+            setprojId(result.data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       })
       .catch((error) => {
         alert(error);
@@ -234,7 +232,9 @@ export default function Project() {
                   console.log(projectName);
 
                   setvisible(true);
-                  navigate("/TaskCategory", { state: { name: projectName,id:projId } });
+                  navigate("/TaskCategory", {
+                    state: { name: projectName, id: projId },
+                  });
                 }}
               >
                 Add Project

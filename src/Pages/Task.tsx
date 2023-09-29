@@ -9,6 +9,7 @@ import {
   CCardSubtitle,
   CCardText,
   CCardTitle,
+  CFormSelect,
   CFormTextarea,
   CModal,
   CModalBody,
@@ -19,8 +20,13 @@ import {
 import axios from "axios";
 import "../css/Task.css";
 import { Button, Offcanvas } from "react-bootstrap";
-import { BsCalendarDateFill, BsPersonFillAdd } from "react-icons/bs";
+import {
+  BsCalendarDateFill,
+  BsFolderPlus,
+  BsPersonFillAdd,
+} from "react-icons/bs";
 import { renderToStaticMarkup } from "react-dom/server";
+import { BiBorderRadius, BiCategory, BiSearchAlt2 } from "react-icons/bi";
 
 export default function Mytask() {
   const id = localStorage.getItem("id");
@@ -36,7 +42,9 @@ export default function Mytask() {
   const [taskl, settaskl] = useState([]);
   const [filterDate, setfilterDate] = useState("");
   const [vm, setvm] = useState(false);
-  const [filterproj,setfilterproj]=useState("");
+  const [search, setsearch] = useState("");
+  const [filterproj, setfilterproj] = useState("");
+  const [sort, setsort] = useState(false);
 
   const [editt, seteditt] = useState({
     id: 0,
@@ -309,7 +317,7 @@ export default function Mytask() {
               </div>
               <div>
                 <h6>Assigned To</h6>
-                <select
+                {/* <select
                   name="assignto"
                   onChange={(e: any) => {
                     setassignto(e.target.value);
@@ -322,49 +330,76 @@ export default function Mytask() {
                       <option value={item.username}>{item.username}</option>
                     );
                   })}
-                </select>
+                </select> */}
+
+                <div className="input-addon" style={{ width: "70%" }}>
+                  <select
+                    className="form-element input-field "
+                    name="assignto"
+                    onChange={(e: any) => {
+                      setassignto(e.target.value);
+                    }}
+                  >
+                    <option value="">--select--</option>
+                    {d.map((item: any, index: any) => {
+                      return (
+                        <option value={item.username}>{item.username}</option>
+                      );
+                    })}
+                  </select>
+                </div>
               </div>
               <div>
                 <h6>Created by </h6>
-                <select
-                  name="manager"
-                  onChange={(e: any) => {
-                    setmanager(e.target.value);
-                  }}
-                  style={{ marginRight: "25px" }}
-                >
-                  <option value="">--select--</option>
-                  {d.map((item: any, index: any) => {
-                    return (
-                      <option value={item.username}>{item.username}</option>
-                    );
-                  })}
-                </select>
+                <div className="input-addon" style={{ width: "70%" }}>
+                  <select
+                    className="form-element input-field "
+                    name="manager"
+                    onChange={(e: any) => {
+                      setmanager(e.target.value);
+                    }}
+                  >
+                    <option value="">--select--</option>
+                    {d.map((item: any, index: any) => {
+                      return (
+                        <option value={item.username}>{item.username}</option>
+                      );
+                    })}
+                  </select>
+                </div>
               </div>
               <div>
                 <h6>Date</h6>
-                <input
-                  type="date"
-                  onChange={(e: any) => setfilterDate(e.target.value)}
-                  value={filterDate}
-                />
+                <div className="input-addon" style={{ width: "70%" }}>
+                  <input
+                    className="form-element input-field "
+                    type="date"
+                    onChange={(e: any) => setfilterDate(e.target.value)}
+                    value={filterDate}
+                  />
+                </div>
               </div>
+
               <div>
                 <h6>Project</h6>
-                <select
-                  name="filterproj"
-                  onChange={(e: any) => {
-                    setfilterproj(e.target.value);
-                  }}
-                  style={{ marginRight: "25px" }}
-                >
-                  <option value="">--select--</option>
-                  {proj.map((item: any, index: any) => {
-                    return (
-                      <option value={item.projectName}>{item.projectName}</option>
-                    );
-                  })}
-                </select>
+                <div className="input-addon" style={{ width: "70%" }}>
+                  <select
+                    className="form-element input-field "
+                    name="filterproj"
+                    onChange={(e: any) => {
+                      setfilterproj(e.target.value);
+                    }}
+                  >
+                    <option value="">--select--</option>
+                    {proj.map((item: any, index: any) => {
+                      return (
+                        <option value={item.projectName}>
+                          {item.projectName}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
               </div>
             </div>
             {/* <div className="taskCard">
@@ -403,9 +438,49 @@ export default function Mytask() {
                 >
                   Add Task
                 </button>
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    name="search"
+                    value={search}
+                    onChange={(e) => setsearch(e.target.value)}
+                    placeholder="Search task"
+                    className="search-input"
+                  />
+                  <div className="search-icon">
+                    <BiSearchAlt2 />
+                  </div>
+                </div>
+                <div className=" input-wrapper sort">
+                  <select
+                    className="search-input"
+                    style={{ height: "1.5rem" }}
+                    name="filterproj"
+                    onChange={(e: any) => {
+                      const selectedOption = e.target.value;
+                      if (selectedOption === "sort") {
+                        setsort(true);
+                      } else {
+                        setsort(false);
+                      }
+                    }}
+                  >
+                    <option value="create">By Creation</option>
+                    <option value="sort">By Date</option>
+                  </select>
+                </div>
               </div>
               {status == "active" && t.length > 0
-                ? t
+                ? (sort
+                    ? t.slice().sort((a: any, b: any) => {
+                        const dateA = new Date(a.dateTime);
+                        const dateB = new Date(b.dateTime);
+                        if (dateA < dateB) return -1;
+                        if (dateA > dateB) return 1;
+                        return 0;
+                      })
+                    : t
+                  )
                     .filter((item: any) => {
                       return (
                         item.status != "Done" &&
@@ -413,10 +488,13 @@ export default function Mytask() {
                         (manager === "" || manager === item.manager) &&
                         (filterDate === "" ||
                           new Date(filterDate).toDateString() ===
-                            new Date(item.dateTime).toDateString())&&
-                            (filterproj===""||filterproj===item.projectName)
+                            new Date(item.dateTime).toDateString()) &&
+                        (filterproj === "" ||
+                          filterproj === item.projectName) &&
+                        (search === "" || search === item.task)
                       );
                     })
+
                     .map((item: any, index: any) => {
                       return (
                         <div key={index}>
@@ -479,7 +557,16 @@ export default function Mytask() {
                     })
                 : null}
               {status == "complete" && t.length > 0
-                ? t
+                ? (sort
+                    ? t.slice().sort((a: any, b: any) => {
+                        const dateA = new Date(a.dateTime);
+                        const dateB = new Date(b.dateTime);
+                        if (dateA < dateB) return -1;
+                        if (dateA > dateB) return 1;
+                        return 0;
+                      })
+                    : t
+                  )
                     .filter((item: any) => {
                       return (
                         item.status == "Done" &&
@@ -488,9 +575,12 @@ export default function Mytask() {
                         (filterDate === "" ||
                           new Date(filterDate).toDateString() ===
                             new Date(item.dateTime).toDateString()) &&
-                            (filterproj===""||filterproj===item.projectName)
+                        (filterproj === "" ||
+                          filterproj === item.projectName) &&
+                        (search === "" || search === item.task)
                       );
                     })
+
                     .map((item: any, index: any) => {
                       return (
                         <div key={index}>
@@ -507,7 +597,7 @@ export default function Mytask() {
                               <div>
                                 <CCardSubtitle className="mb-2 text-medium-emphasis">
                                   <span>
-                                  {item.projectName} &gt; {item.taskLName}
+                                    {item.projectName} &gt; {item.taskLName}
                                   </span>
                                 </CCardSubtitle>
                                 <CCardText className="taskname">
@@ -553,15 +643,26 @@ export default function Mytask() {
                     })
                 : null}
               {status == "all" && t.length > 0
-                ? t
+                ? (sort
+                    ? t.slice().sort((a: any, b: any) => {
+                        const dateA = new Date(a.dateTime);
+                        const dateB = new Date(b.dateTime);
+                        if (dateA < dateB) return -1;
+                        if (dateA > dateB) return 1;
+                        return 0;
+                      })
+                    : t
+                  )
                     .filter((item: any) => {
                       return (
                         (assignto === "" || assignto === item.assignTo) &&
                         (manager === "" || manager === item.manager) &&
                         (filterDate === "" ||
                           new Date(filterDate).toDateString() ===
-                            new Date(item.dateTime).toDateString())&&
-                            (filterproj===""||filterproj===item.projectName)
+                            new Date(item.dateTime).toDateString()) &&
+                        (filterproj === "" ||
+                          filterproj === item.projectName) &&
+                        (search === "" || search === item.task)
                       );
                     })
                     .map((item: any, index: any) => {
@@ -1187,7 +1288,7 @@ export default function Mytask() {
             </Offcanvas.Header>
             <Offcanvas.Body>
               <div className="taskdetail">
-                <div
+                {/* <div
                   style={{ display: "flex", flexDirection: "row", gap: "15px" }}
                 >
                   <span>Manager:</span>
@@ -1292,6 +1393,144 @@ export default function Mytask() {
                       seteditt({ ...editt, [e.target.name]: e.target.value });
                     }}
                   />
+                </div>*/}
+              </div>
+              <div className="taskFilter">
+                {/* <div>
+                <h6 style={{ fontWeight: "bold", margin: "8px 2px 8px 2px" }}>
+                  Status
+                </h6>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "5px",
+                  }}
+                >
+                  <div>
+                    <input
+                      type="radio"
+                      name="status"
+                      onChange={filterStatus}
+                      value="active"
+                    />
+                    Active
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      name="status"
+                      onChange={filterStatus}
+                      value="complete"
+                    />
+                    Completed
+                  </div>
+                  <div>
+                    <input
+                      checked
+                      type="radio"
+                      name="status"
+                      onChange={filterStatus}
+                      value="all"
+                    />
+                    All
+                  </div>
+                </div>
+              </div> */}
+                <div>
+                  <h6>Manager</h6>
+
+                  <div className="input-addon" style={{ width: "70%" }}>
+                    <select
+                      className="form-element input-field "
+                      name="assignedBy"
+                      onChange={(e: any) => {
+                        seteditt({ ...editt, [e.target.name]: e.target.value });
+                      }}
+                    >
+                      {" "}
+                      {d.map((item: any, index: any) => {
+                        return <option value={item.id}>{item.username}</option>;
+                      })}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <h6>Assigned To </h6>
+                  <div className="input-addon" style={{ width: "70%" }}>
+                    <select
+                      className="form-element input-field "
+                      name="assignedTo"
+                      onChange={(e: any) => {
+                        seteditt({ ...editt, [e.target.name]: e.target.value });
+                      }}
+                      value={editt.assignedTo}
+                    >
+                      {d.map((item: any, index: any) => {
+                        return <option value={item.id}>{item.username}</option>;
+                      })}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <h6>Task</h6>
+                  <div className="input-addon" style={{ width: "70%" }}>
+                    <input
+                      className="form-element input-field "
+                      type="text"
+                      name="task"
+                      value={editt.task}
+                      onChange={(e: any) => {
+                        seteditt({ ...editt, [e.target.name]: e.target.value });
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <h6>Task Category</h6>
+                  <div className="input-addon" style={{ width: "70%" }}>
+                    <select
+                      className="form-element input-field "
+                      name="taskL"
+                      onChange={(e: any) => {
+                        seteditt({ ...editt, [e.target.name]: e.target.value });
+                      }}
+                      value={editt.taskL}
+                    >
+                      {taskl.map((item: any, index: any) => {
+                        return <option value={item.id}>{item.taskType}</option>;
+                      })}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <h6>Date</h6>
+                  <div className="input-addon" style={{ width: "70%" }}>
+                    <input
+                      className="form-element input-field "
+                      type="date"
+                      name="dateTime"
+                      value={editt.dateTime}
+                      onChange={(e: any) => {
+                        seteditt({ ...editt, [e.target.name]: e.target.value });
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <h6>Status</h6>
+                  <div className="input-addon" style={{ width: "70%" }}>
+                    <input
+                      className="form-element input-field "
+                      type="text"
+                      name="status"
+                      value={editt.status}
+                      onChange={(e: any) => {
+                        seteditt({ ...editt, [e.target.name]: e.target.value });
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </Offcanvas.Body>
@@ -1320,63 +1559,98 @@ export default function Mytask() {
             onChange={handleChange}
             value={u.task}
           />
-          <BsPersonFillAdd
-            for="taskL"
-            size={25}
-            style={{ marginRight: "10px" }}
-            color="grey"
-          />
-          <select
-            name="taskL"
-            onChange={handleChange}
-            style={{ marginRight: "25px" }}
-            value={u.taskL}
-          >
-            {taskl.map((item: any, index: any) => {
-              return <option value={item.id}>{item.taskType}</option>;
-            })}
-          </select>
-          <BsCalendarDateFill
-            size={25}
-            style={{ marginRight: "10px" }}
-            color="grey"
-          />
-          <select
-            name="projectId"
-            onChange={handleChange}
-            style={{ marginRight: "25px" }}
-          >
-            {proj.map((item: any, index: any) => {
-              return <option value={item.id}>{item.projectName}</option>;
-            })}
-          </select>
-          <BsPersonFillAdd
-            for="assignedTo"
-            size={25}
-            style={{ marginRight: "10px" }}
-            color="grey"
-          />
-          <select
-            name="assignedTo"
-            onChange={handleChange}
-            style={{ marginRight: "25px" }}
-            value={u.assignedTo}
-          >
-            {d.map((item: any, index: any) => {
-              return <option value={item.id}>{item.username}</option>;
-            })}
-          </select>
-          <BsCalendarDateFill
-            size={25}
-            style={{ marginRight: "10px" }}
-            color="grey"
-          />
-          <input
-            type="date"
-            name="dateTime"
-            value={u.dateTime}
-            onChange={handleChange}
-          />
+          <div style={{ paddingLeft: "5px", paddingRight: "5px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <div className="input-wrapper">
+                <BiCategory
+                  for="taskL"
+                  size={25}
+                  color="grey"
+                  className="search-icon"
+                />
+                <select
+                  name="taskL"
+                  onChange={handleChange}
+                  style={{ width: "12rem", height: "2rem" }}
+                  value={u.taskL}
+                  className="search-input"
+                >
+                  {taskl.map((item: any, index: any) => {
+                    return <option value={item.id}>{item.taskType}</option>;
+                  })}
+                </select>
+              </div>
+
+              <div className="input-wrapper">
+                <BsFolderPlus
+                  className="search-icon"
+                  size={25}
+                  style={{ marginRight: "10px" }}
+                  color="grey"
+                />
+                <select
+                  name="projectId"
+                  onChange={handleChange}
+                  className="search-input"
+                  style={{ width: "12rem", height: "2rem" }}
+                >
+                  {proj.map((item: any, index: any) => {
+                    return <option value={item.id}>{item.projectName}</option>;
+                  })}
+                </select>
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <div className="input-wrapper">
+                <BsPersonFillAdd
+                  for="assignedTo"
+                  className="search-icon"
+                  size={25}
+                  style={{ marginRight: "10px" }}
+                  color="grey"
+                />
+                <select
+                  name="assignedTo"
+                  onChange={handleChange}
+                  value={u.assignedTo}
+                  className="search-input"
+                  style={{ width: "12rem", height: "2rem" }}
+                >
+                  {d.map((item: any, index: any) => {
+                    return <option value={item.id}>{item.name}</option>;
+                  })}
+                </select>
+              </div>
+              <div className="input-wrapper">
+                <BsCalendarDateFill
+                  className="search-icon"
+                  size={25}
+                  style={{ marginRight: "10px" }}
+                  color="grey"
+                />
+                <input
+                  type="date"
+                  name="dateTime"
+                  value={u.dateTime}
+                  onChange={handleChange}
+                  className="search-input"
+                  style={{ width: "12rem", height: "2rem" }}
+                />
+              </div>
+            </div>
+          </div>
         </CModalBody>
         <CModalFooter>
           <CButton className="taskButton" onClick={assignTask}>

@@ -25,7 +25,8 @@ export default function Navbar() {
     toast.success("User logged out");
   };
   const navigate = useNavigate();
-
+  const name = localStorage.getItem("Name");
+  const email = localStorage.getItem("Email");
   return (
     <>
       {/* <div className="navbar">
@@ -57,9 +58,9 @@ export default function Navbar() {
           style={{ display: "flex", justifyContent: "space-between" }}
         >
           <div>
-            <CNavbarBrand href="#" style={{color:"white"}}>TaskHub</CNavbarBrand>
+            <CNavbarBrand href="#" style={{ color: "white" }}>TaskHub </CNavbarBrand>
           </div>
-          <div style={{ direction: "rtl"}}>
+          {/* <div style={{ direction: "rtl"}}>
             <CNavbarNav>
               <CDropdown variant="nav-item" popper={false} >
                 <CDropdownToggle>
@@ -92,9 +93,43 @@ export default function Navbar() {
                
               </CDropdown>
             </CNavbarNav>
-          </div>
+          </div> */}
+          <div>
+            <CNavbarBrand href="#" style={{ color: "#30bcb8" }}>{name}</CNavbarBrand>
+            <CDropdown alignment="end">
+              <CDropdownToggle color="#222e38"><LiaUserCircleSolid
+                size={55}
+                color="white"
+              ></LiaUserCircleSolid></CDropdownToggle>
+              <CDropdownMenu >
+
+                <CDropdownItem>
+                  <Link
+                    to="/EditUser"
+                    style={{ textDecoration: "none", color: "black" }}
+                  >
+                    Account
+                  </Link>
+                </CDropdownItem>
+
+
+                <CDropdownDivider />
+                <CDropdownItem
+                  onClick={() => {
+                    localStorage.setItem("id", "");
+                    localStorage.setItem("token", "");
+                    localStorage.setItem("roleId", "");
+                    navigate("/");
+                  }}
+                >
+                  <TbLogout2></TbLogout2>Logout
+                </CDropdownItem>
+              </CDropdownMenu>
+            </CDropdown>
+            </div>
         </CContainer>
-      </CNavbar>
+      
+    </CNavbar >
     </>
   );
 }

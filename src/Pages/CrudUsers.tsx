@@ -345,7 +345,15 @@ export default function Users() {
                           <td>{item.name}</td>
                           <td>{item.email}</td>
                           <td>{item.username}</td>
-                          <td>{item.roleId}</td>
+                          <td>
+                            {item.roleId === "1"
+                              ? "Admin"
+                              : item.roleId === "2"
+                              ? "Manager"
+                              : item.roleId === "3"
+                              ? "Employee"
+                              : ""}
+                          </td>
 
                           <td colSpan={2}>
                             <button
